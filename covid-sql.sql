@@ -6,10 +6,13 @@ from CovidDeaths
 order by 1,2
 
 -- the likelihood of dying if you contract covid in your country
-select location, date, total_cases,total_deaths,(total_deaths/total_cases)*100 as DeathPercentage
+select sum(new_cases) as totalcase
+,sum(cast(new_deaths as int)) as totaldeath
+,(sum(cast(new_deaths as int))/sum(new_cases))*100 as DeathPercentage
 from CovidDeaths
-where location like '%states%'
+--where location like '%states%'
 order by 1,2
+
 
 -- looking at total cases vs population 
 select location, population, 
@@ -27,20 +30,20 @@ where continent is not null
 group by location 
 order by TotalDeathCount desc
 
--- break things down by continent
-select continent,sum(population) as TotalPopulationContinent, max(cast(total_deaths as int)) as TotalDeathCount, 
-(max(cast(total_deaths as int))/sum(population))*100 as PercentDeathContinent
+-- TotalDeathCount of continents
+select continent,sum(cast(new_deaths as int)) as TotalDeathCount
 from CovidDeaths
 where continent is not null
 group by continent
 order by TotalDeathCount DESC
 
--- break things down by continent and location
-select location, max(cast(total_deaths as int)) as TotalDeathCount
+-- PercentpopulationInfected
+select location, population,  max(cast(total_cases as int)) as HighestInfectionCounts,
+( max(cast(total_cases as int))/population)*100 as PercentpopulationInfected
 from CovidDeaths
-where continent is null
-group by location
-order by TotalDeathCount DESC
+where continent is not null
+group by location, population
+order by 4 DESC
 
 --Global number
 select date, sum(total_cases) as totalcase
